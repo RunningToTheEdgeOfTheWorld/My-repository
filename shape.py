@@ -16,6 +16,8 @@ SCREEN_HIGH=(length+edge_distance)*SQUARE_LEVEL+edge_distance #画面长度
 RANDOM_NUM=1
 INIT_RANDOM_NUM=SQUARE_LEVEL-1
 
+lock=threading.Lock()
+
 class Point(object):
     def __init__(self,x,y):
         self.x=int(x)
@@ -211,9 +213,13 @@ class MainFrame(wx.Frame):
             thread_draw.start()
 
     def DrawSquare(self,square1,show_value=True):
-        lock=threading.Lock()
+
         brush=wx.Brush(square1.color)
+        lock.acquire()
+        f_color='#616161' if square1.value in [2,4] else 'white'
+        self.SetForegroundColour(f_color) 
         dc=wx.ClientDC(self)
+        lock.release()
         dc.SetPen(wx.TRANSPARENT_PEN)
         dc.SetBrush(brush)
         a=(square1.value in [1024,2048]) and 0.7 or 1
@@ -227,11 +233,7 @@ class MainFrame(wx.Frame):
                 dc.DrawRectangle(square1.pos[0]+(square1.length-i)/2,square1.pos[1]+(square1.length-i)/2,i,i)
             if show_value:
                 num_long,num_high=dc.GetTextExtent(str(square1.value))
-                lock.acquire()
-                f_color='#616161' if square1.value in [2,4] else 'white'
-                self.SetForegroundColour(f_color) 
                 dc.DrawText(str(square1.value),(square1.length-num_long)/2.0+square1.pos[0],(square1.length-num_high)/2.0+square1.pos[1])
-                lock.release()
         else:
             dc.DrawRectangle(square1.pos[0],square1.pos[1],square1.length,square1.length)
 
