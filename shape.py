@@ -205,12 +205,16 @@ class MainFrame(wx.Frame):
         return change_dic
 
     def PaintChange(self,change_dic):
+        thread_pool=[]
         for vector in change_dic:
             pos=(edge_distance+vector[1]*(length+edge_distance),edge_distance+vector[0]*(length+edge_distance))
             square1=Square(pos=pos,value=change_dic[vector],length=length)#创建要显示的正方形
 #           self.DrawSquare(square1)
             thread_draw=threading.Thread(target=self.DrawSquare,args=(square1,))
             thread_draw.start()
+            thread_pool.append(thread_draw)
+        for i in thread_pool:
+            i.join()
 
     def DrawSquare(self,square1,show_value=True):
 
